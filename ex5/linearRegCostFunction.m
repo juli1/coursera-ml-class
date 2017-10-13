@@ -20,14 +20,16 @@ grad = zeros(size(theta));
 %
 
 
+% ignore the first element of theta. As said on page 4 it should
+% not be used for regularization
+theta_bis = [0 ; theta(2:size(theta), :)];
 
+J =  1/(2*m) * sum(((X * theta) -y ) .^2);
+J = J + (lambda * sum(theta_bis .^ 2)) / (2*m);
 
-
-
-
-
-
-
+% reuse theta_bis - see gradient function, the first
+% element of theta is not used in the second term.
+grad = ( X' * ((X * theta)- y) + lambda*theta_bis ) / m;
 
 
 % =========================================================================

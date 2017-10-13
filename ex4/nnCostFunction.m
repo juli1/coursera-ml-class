@@ -39,6 +39,35 @@ Theta2_grad = zeros(size(Theta2));
 %         cost function computation is correct by verifying the cost
 %         computed in ex4.m
 %
+% we have training vector  with the results
+% instead, what we need to do is to convert and, for each
+% test/training, put 0 for all numbers and only 1 for
+% the number related to the test
+yb = zeros(m,num_labels);
+for i=1:m
+ yb(i,y(i)) = 1;
+end 
+
+% add bias on inputs
+X1 = [ones(m,1), X];
+
+% compute the first layer
+z1 = X1 * Theta1';
+a1 = sigmoid(z1);
+
+% add bias
+a11 = [ones(m,1), a1];
+
+% compute second layer
+z2 = a11 * Theta2';
+a2 = sigmoid(z2);
+
+% cost function
+J = sum(sum( -yb.*log(a2) - (1-yb).*log(1-a2) ))/m;
+
+% regularized cost function
+J = J + (sum(sum(Theta1(:,2:end).^2)) + sum(sum(Theta2(:,2:end).^2)) )* lambda/(2*m);
+
 % Part 2: Implement the backpropagation algorithm to compute the gradients
 %         Theta1_grad and Theta2_grad. You should return the partial derivatives of
 %         the cost function with respect to Theta1 and Theta2 in Theta1_grad and
@@ -54,6 +83,38 @@ Theta2_grad = zeros(size(Theta2));
 %               over the training examples if you are implementing it for the 
 %               first time.
 %
+
+% we start for each training sample
+for t = 1:m
+    % take inputs from samples T
+    a_1 = X1(t,:)';
+           
+    % compute layer 2
+    z_2 = Theta1 * a_1;
+    a_2 = sigmoid(z_2);
+    a_2 = [1; a_2];
+    
+    % and then, layer 3
+    z_3 = Theta2 * a_2;
+    a_3 = sigmoid(z_3);
+    
+    % take the results from this test/training
+    yt = yb(t,:)';
+    % delta layer 3 = our results - expected results
+    delta_3 = a_3 - yt; 
+    
+    % delta layer 2 =  propagation of error from layer 3 * actual result
+    delta_2 = (Theta2' * delta_3) .* sigmoidGradient([1; z_2]);
+    % remove the first value (bias)
+    delta_2 = delta_2(2:end); 
+
+    dt2 = delta_3 * a_2';
+    dt1 = delta_2 * a_1';
+ 
+    Theta2_grad = Theta2_grad + dt2;
+    Theta1_grad = Theta1_grad + dt1;
+end
+
 % Part 3: Implement regularization with the cost function and gradients.
 %
 %         Hint: You can implement this around the code for
@@ -63,29 +124,16 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 
+%regularization
+Theta1_grad = (1/m) * Theta1_grad;
+Theta2_grad = (1/m) * Theta2_grad ;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% -------------------------------------------------------------
+Theta1_grad(:,2:end) = Theta1_grad(:,2:end) + (lambda/m) * Theta1(:,2:end);
+Theta2_grad(:,2:end) = Theta2_grad(:,2:end) + (lambda/m) * Theta2(:,2:end);
 
 % =========================================================================
 
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
