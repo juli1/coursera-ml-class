@@ -98,13 +98,13 @@ while ~isempty(email_contents)
     %
 
 
-
-
-
-
-
-
-
+    % Loop in the vocab list
+    for i = 1:length(vocabList)
+        % if the string matches, add it
+        if(strcmp(str, vocabList{i}))
+            word_indices = [ word_indices ; i];
+        end
+    end
 
     % =============================================================
 
