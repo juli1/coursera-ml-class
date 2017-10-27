@@ -27,10 +27,20 @@ centroids = zeros(K, n);
 %
 
 
-
-
-
-
+% Lets compute for each centroid
+for c=1:K,
+  total = 0;
+  for i=1:m,
+     if idx(i) == c,
+           % We have one point in that centroid group
+           total = total + 1;
+           centroids(c,:) = centroids(c,:) + X(i,:);
+     end
+  end
+  if total > 0, % avoid div by zero :)
+      centroids(c,:) = centroids(c,:) ./ total;
+  end
+end
 
 
 % =============================================================
